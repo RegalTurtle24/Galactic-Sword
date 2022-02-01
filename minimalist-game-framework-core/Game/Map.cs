@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualBasic.FileIO;
 using System.Collections.Generic;
+using System.IO;
 
 class Map
 {
@@ -65,7 +66,7 @@ class Map
     }
 
     public void drawEnemies(Vector2 res, GameState curGameState, Player mainCharacter, Bounds2 playerCoords)
-    {     
+    {
         for (int i = 0; i < enemies.Count; i++)
         {
             Enemy a = enemies[i];
@@ -77,13 +78,14 @@ class Map
                 enemies.Remove(enemies[i]);
             }
 
-            if (a.isOnscreen(res, mapOffset)) {
+            if (a.isOnscreen(res, mapOffset))
+            {
                 if (a.getType().Equals("projectile"))
                     if (a.getAge() == 0)
                         a.setAngle(playerCoords.Position);
                 if (a.getType().Equals("gunner") && a.getAge() % 120 == 0)
                     enemies.Add(new Enemy("projectile", a.getCoords().Position.X, a.getCoords().Position.Y));
-                
+
                 a.collide(tiles, res, mapOffset);
                 a.move(playerCoords.Position);
 
@@ -94,7 +96,7 @@ class Map
             }
         }
     }
-  
+
     public void drawItems(ref List<Item> items, Vector2 mapOffset, Player character)
     {
         Vector2 itemSize = new Vector2(36, 36);
@@ -123,7 +125,7 @@ class Map
                 if (item.getType().Equals("Key"))
                 {
                     Game.keyCount++;
-                    if(Game.dungeonsCompleted == 1 || Game.dungeonsCompleted == 2)
+                    if (Game.dungeonsCompleted == 1 || Game.dungeonsCompleted == 2)
                     {
                         Game.finishDugeon();
                     }
@@ -319,11 +321,20 @@ class Map
 
     List<int> dungeonsCollidableTextures = new List<int> { -1, 190, 191, 192, 194, 196, 199, 200, 201, 220, 221, 222, 223, 224, 229, 231, 250, 251, 252, 253, 254, 256, 257, 258, 259, 260, 261, 280, 281, 282, 283, 284, 285, 290, 291, 292, 462, 463, 489, 490,
           286, 289, 293 };
-    
+
     private void createDungeon(String csvName, Areas area)
     {
-        // sets up parsing the csv
-        TextFieldParser parser = new TextFieldParser(csvName);
+        String saveFile = csvName.Substring(0, 15) + "save.csv";
+        TextFieldParser parser;
+        if (File.Exists(saveFile))
+        {
+            parser = new TextFieldParser(saveFile);
+        }
+        else
+        {
+            parser = new TextFieldParser(csvName);
+        }
+
         parser.TextFieldType = FieldType.Delimited;
         parser.SetDelimiters(",");
 

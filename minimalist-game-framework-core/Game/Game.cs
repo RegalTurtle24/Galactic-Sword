@@ -81,9 +81,11 @@ class Game
 
     public static int keyCount = 0;
 
+    String startSave = "assets/startSave.csv";
+    String gameSave = "assets/gameSave.csv";
+
     public Game()
     {
-        startupWithFile();
     }
 
     public void Update()
@@ -146,8 +148,25 @@ class Game
             }
         }
 
+        /*
         if (!Engine.GetKeyDown(Key.I) && (Engine.TypedText.Length != 0) && curGameState == GameState.Home)
         {
+            startupWithFile();
+            curGameState = GameState.Game;
+            playMusic = false;
+        }
+        */
+
+        if (Engine.GetKeyDown(Key.S) && curGameState == GameState.Home)
+        {
+            startupWithFile(startSave);
+            curGameState = GameState.Game;
+            playMusic = false;
+        }
+
+        if (Engine.GetKeyDown(Key.F) && curGameState == GameState.Home)
+        {
+            startupWithFile(gameSave);
             curGameState = GameState.Game;
             playMusic = false;
         }
@@ -187,11 +206,14 @@ class Game
         if (Engine.GetKeyDown(Key.P) &&
             (curGameState == GameState.Paused || curGameState == GameState.End))
         {
-            startupWithFile();
+            startupWithFile(gameSave);
             curGameState = GameState.Game;
         }
 
-        playerCoords = new Bounds2(new Vector2(Resolution.X / 2, Resolution.Y / 2) - maps[currentArea].mapOffset, new Vector2(32, 32));
+        if (curGameState == GameState.Game)
+        {
+            playerCoords = new Bounds2(new Vector2(Resolution.X / 2, Resolution.Y / 2) - maps[currentArea].mapOffset, new Vector2(32, 32));
+        }
     }
 
     private void updateGame()
@@ -435,10 +457,10 @@ class Game
         }
     }
 
-    public void startupWithFile()
+    public void startupWithFile(String fileName)
     {
         FileManager fm = new FileManager();
-        fm.load();
+        fm.loadFromExistingFile(fileName);
 
         currentArea = fm.currentArea;
         keyCount = fm.keys;
@@ -479,12 +501,12 @@ class Game
             "hearts:" + mainCharacter.getHealth() + "," +
             "keys:" + keyCount;
 
-        fm.writeToFile(generalInfo);
+        fm.writeToGameSave(generalInfo);
 
         String overworldInfo =
             "overworldOffset:" + maps[(int)Areas.Overworld].mapOffset.X + ":" + maps[(int)Areas.Overworld].mapOffset.Y;
 
-        fm.writeToFile(overworldInfo);
+        fm.writeToGameSave(overworldInfo);
 
         String dungeon1Info =
             "dungeon1Offset:" + maps[(int)Areas.Dungeon1].mapOffset.X + ":" + maps[(int)Areas.Dungeon1].mapOffset.Y;
@@ -493,7 +515,7 @@ class Game
             dungeon1Info = dungeon1Info + ",enemy1:" + e.getType() + ":" + (int)e.getBounds().Position.X + ":" + (int)e.getBounds().Position.Y;
         }
 
-        fm.writeToFile(dungeon1Info);
+        fm.writeToGameSave(dungeon1Info);
 
         String dungeon2Info =
             "dungeon2Offset:" + maps[(int)Areas.Dungeon2].mapOffset.X + ":" + maps[(int)Areas.Dungeon2].mapOffset.Y;
@@ -502,7 +524,7 @@ class Game
             dungeon2Info = dungeon2Info + ",enemy2:" + e.getType() + ":" + (int)e.getBounds().Position.X + ":" + (int)e.getBounds().Position.Y;
         }
 
-        fm.writeToFile(dungeon2Info);
+        fm.writeToGameSave(dungeon2Info);
 
         String dungeon3Info =
             "dungeon3Offset:" + maps[(int)Areas.Dungeon3].mapOffset.X + ":" + maps[(int)Areas.Dungeon3].mapOffset.Y;
@@ -511,6 +533,6 @@ class Game
             dungeon3Info = dungeon3Info + ",enemy3:" + e.getType() + ":" + (int)e.getBounds().Position.X + ":" + (int)e.getBounds().Position.Y;
         }
 
-        fm.writeToFile(dungeon3Info);
+        fm.writeToGameSave(dungeon3Info);
     }
 }

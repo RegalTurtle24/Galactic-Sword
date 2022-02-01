@@ -24,9 +24,9 @@ class FileManager
     public List<Item> dum3Items = new List<Item>();
     public int keys;
 
-    public void load()
+    public void loadFromExistingFile(String fileName)
     {
-        TextFieldParser parser = new TextFieldParser("assets/save.csv");
+        TextFieldParser parser = new TextFieldParser(fileName);
         parser.TextFieldType = FieldType.Delimited;
         parser.SetDelimiters(",");
 
@@ -99,13 +99,13 @@ class FileManager
         }
     }
 
-    public void writeToFile(String contents)
+    public void writeToGameSave(String contents)
     {
-        File.AppendAllText("assets/save.csv", contents + "\n");
+        File.AppendAllText("assets/gameSave.csv", contents + "\n");
     }
 
     public void wipeFile()
     {
-        File.WriteAllText("assets/save.csv", "");
+        File.WriteAllText("assets/gameSave.csv", "");
     }
 }
