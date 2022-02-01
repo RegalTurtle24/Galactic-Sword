@@ -24,7 +24,7 @@ class Game
 {
     public static readonly string Title = "Minimalist Game Framework";
     public static readonly Vector2 Resolution = new Vector2(640, 480);
-  
+
     readonly Texture homescreen = Engine.LoadTexture("home.png");
     readonly Texture paused = Engine.LoadTexture("paused.png");
     readonly Texture inventory = Engine.LoadTexture("inventory.png");
@@ -79,9 +79,9 @@ class Game
 
     public static int bombCount = 0;
 
-  public static int keyCount = 0;
+    public static int keyCount = 0;
 
-  public Game()
+    public Game()
     {
         startupWithFile();
     }
@@ -104,7 +104,7 @@ class Game
 
             else if (currentArea == 2)
                 maps[currentArea].changeOffSet(new Vector2(-1350, -4140));
-            
+
             else if (currentArea == 3)
                 maps[currentArea].changeOffSet(new Vector2(-2000, -4860));
 
@@ -116,7 +116,7 @@ class Game
             if (curGameState != GameState.Paused)
             {
                 curGameState = GameState.Paused;
-            } 
+            }
             else
             {
                 curGameState = GameState.Game;
@@ -128,7 +128,7 @@ class Game
         {
             curGameState = GameState.Info;
         }
-        
+
         if (Engine.GetKeyDown(Key.Right) && curGameState == GameState.Info)
         {
             curGameState = GameState.Controls;
@@ -144,7 +144,7 @@ class Game
             {
                 curGameState = GameState.Info;
             }
-        }    
+        }
 
         if (!Engine.GetKeyDown(Key.I) && (Engine.TypedText.Length != 0) && curGameState == GameState.Home)
         {
@@ -152,7 +152,7 @@ class Game
             playMusic = false;
         }
 
-        if(Engine.GetKeyDown(Key.S) && curGameState==GameState.Paused)
+        if (Engine.GetKeyDown(Key.S) && curGameState == GameState.Paused)
         {
             saveGame();
         }
@@ -184,7 +184,7 @@ class Game
             bombDropped = true;
         }
 
-        if (Engine.GetKeyDown(Key.P) && 
+        if (Engine.GetKeyDown(Key.P) &&
             (curGameState == GameState.Paused || curGameState == GameState.End))
         {
             startupWithFile();
@@ -279,7 +279,7 @@ class Game
             Bounds2 swordBounds = new Bounds2((time % 3) * 48, (time / 3) * 48, 48, 48);
             Bounds2 bounds = new Bounds2(322, 216, 16, 16);
             TextureMirror swordMirror = !mainCharacter.isPlayerFacingLeft() ? TextureMirror.None : TextureMirror.Horizontal;
-            
+
             if (mainCharacter.isPlayerFacingLeft())
             {
                 bounds.Position.X = 269;
@@ -307,24 +307,24 @@ class Game
         {
             Item item = detonatingBombs[i];
 
-            if(bombTime == 1 || bombTime == 2)
+            if (bombTime == 1 || bombTime == 2)
             {
-                Engine.DrawTexture(bombExplode1, item.getPosition().Position + maps[currentArea].mapOffset - (explosionSize/2), size: explosionSize);
+                Engine.DrawTexture(bombExplode1, item.getPosition().Position + maps[currentArea].mapOffset - (explosionSize / 2), size: explosionSize);
             }
-            if(bombTime == 3 || bombTime == 4)
+            if (bombTime == 3 || bombTime == 4)
             {
                 Engine.DrawTexture(bombExplode2, item.getPosition().Position + maps[currentArea].mapOffset - (explosionSize / 2), size: explosionSize);
             }
-            if(bombTime == 5)
+            if (bombTime == 5)
             {
-                Engine.DrawTexture(bombExplode3, item.getPosition().Position + maps[currentArea].mapOffset - (explosionSize / 2), size: explosionSize);
-                Bounds2 explosion = new Bounds2(item.getPosition().Position + maps[currentArea].mapOffset - (explosionSize / 2), explosionSize);
+                Engine.DrawTexture(bombExplode3, item.getPosition().Position - (explosionSize / 2), size: explosionSize);
+                Bounds2 explosion = new Bounds2(item.getPosition().Position - (explosionSize / 2), explosionSize);
                 for (int j = 0; j < maps[currentArea].getTiles().Count; j++)
                 {
                     Tile t = maps[currentArea].getTiles()[j];
-                    if(t.isOnscreen(Resolution, maps[currentArea].mapOffset))
+                    if (t.isOnscreen(Resolution, maps[currentArea].mapOffset))
                     {
-                        if(t.isBreakable())
+                        if (t.isBreakable() && t.getBounds().Overlaps(explosion))
                         {
                             Tile newTile = new Tile(t.getBounds(), false, t.getDoorExit(), new Bounds2(17 * 64, 9 * 64, 64, 64), t.getRotation(), t.getTexture());
                             maps[currentArea].getTiles().Add(newTile);
@@ -332,10 +332,21 @@ class Game
                         }
                     }
                 }
+                List<Enemy> e = maps[currentArea].getEnemies();
+                for (int j = 0; j < maps[currentArea].getEnemies().Count; j++)
+                {
+                    if (e[j].isOnscreen(Resolution, maps[currentArea].mapOffset))
+                    {
+                        if (e[j].getBounds().Overlaps(explosion))
+                        {
+                            e[j].damage(2);
+                        }
+                    }
+                }
                 detonatingBombs.Clear();
             }
         }
-        if(bombTime == 6 || bombTime == -1)
+        if (bombTime == 6 || bombTime == -1)
         {
             bombDropped = false;
             bombTime = -2;
@@ -345,11 +356,11 @@ class Game
 
     private void drawDungeonItems(int currentArea)
     {
-        if(currentArea == 1)
+        if (currentArea == 1)
         {
             maps[currentArea].drawItems(ref dungeon1ItemList, maps[1].mapOffset, mainCharacter);
         }
-        else if(currentArea == 2)
+        else if (currentArea == 2)
         {
             maps[currentArea].drawItems(ref dungeon2ItemList, maps[2].mapOffset, mainCharacter);
         }
@@ -367,11 +378,11 @@ class Game
     private void drawInventory()
     {
         // draw hotbar
-        Engine.DrawTexture(inventory, new Vector2(0, 480 * 5/6));
+        Engine.DrawTexture(inventory, new Vector2(0, 480 * 5 / 6));
         // draw health bar
         for (int i = 0; i < mainCharacter.getHealth(); i++)
         {
-            Engine.DrawTexture(heart, new Vector2(500 + 20 * i, 430), null, new Vector2(25,25));
+            Engine.DrawTexture(heart, new Vector2(500 + 20 * i, 430), null, new Vector2(25, 25));
         }
         if (mainCharacter.getHealth().Equals(0) && curGameState == GameState.Game)
         {
@@ -406,7 +417,7 @@ class Game
 
     public static void finishDugeon()
     {
-        if(dungeonsCompleted < 4)
+        if (dungeonsCompleted < 4)
         {
             dungeonsCompleted++;
         }
@@ -463,7 +474,7 @@ class Game
             "currentArea:" + currentArea + "," +
             "hasSword:" + true + "," +
             "hasBag:" + false + "," +
-            "hasDetonator:" + detonationDeviceAcquired + "," + 
+            "hasDetonator:" + detonationDeviceAcquired + "," +
             "bombs:" + bombCount + "," +
             "hearts:" + mainCharacter.getHealth() + "," +
             "keys:" + keyCount;
@@ -472,7 +483,7 @@ class Game
 
         String overworldInfo =
             "overworldOffset:" + maps[(int)Areas.Overworld].mapOffset.X + ":" + maps[(int)Areas.Overworld].mapOffset.Y;
-        
+
         fm.writeToFile(overworldInfo);
 
         String dungeon1Info =

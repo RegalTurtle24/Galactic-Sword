@@ -119,7 +119,8 @@ class Enemy : Entity
         this.bounds.Size.X = 16 * Scale;
         this.bounds.Size.Y = 16 * Scale;
 
-        if (Type.Equals("projectile")) {
+        if (Type.Equals("projectile"))
+        {
             this.bounds.Size.X = 8 * Scale;
             this.bounds.Size.Y = 8 * Scale;
         }
@@ -237,7 +238,7 @@ class Enemy : Entity
         }
     }
 
-    public void damage(Player player, Bounds2 playerCoords) 
+    public void damage(Player player, Bounds2 playerCoords)
     {
         double curX = getCoords().Position.X;
         double curY = getCoords().Position.Y;
@@ -279,12 +280,17 @@ class Enemy : Entity
                 curY -= 50;
             }
 
-            if(Type.Equals("projectile"))
+            if (Type.Equals("projectile"))
             {
                 Health = 0;
             }
 
             setCoords(curX, curY);
         }
+    }
+
+    public void damage(int damageAmount)
+    {
+        Health -= damageAmount;
     }
 }
