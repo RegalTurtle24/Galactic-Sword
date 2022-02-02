@@ -348,6 +348,7 @@ class Game
                     {
                         if (t.isBreakable() && t.getBounds().Overlaps(explosion))
                         {
+                            maps[currentArea].replaceDoor(t);
                             Tile newTile = new Tile(t.getBounds(), false, t.getDoorExit(), new Bounds2(17 * 64, 9 * 64, 64, 64), t.getRotation(), t.getTexture());
                             maps[currentArea].getTiles().Add(newTile);
                             maps[currentArea].getTiles().Remove(t);
