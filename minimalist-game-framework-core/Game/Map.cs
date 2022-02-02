@@ -520,6 +520,5 @@ class Map
             magicMultNum = 7;
 
         IDs[index] = (289 + (long)536870912 * magicMultNum).ToString();
-
-
+    }
 }
