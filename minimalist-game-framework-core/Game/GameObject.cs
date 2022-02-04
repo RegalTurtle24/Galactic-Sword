@@ -1,18 +1,9 @@
 ﻿class GameObject
 {
     // Location and size of the object
-    protected Bounds2 bounds;
+    public Bounds2 Bounds { get; protected set; }
 
-    /// <summary>
-    /// Gets the bounds of the object
-    /// </summary>
-    /// <returns>
-    /// Returns the Bounds2 of the current object
-    /// </returns>
-    public Bounds2 getBounds()
-    {
-        return bounds;
-    }
+    public Texture Texture { get; protected set; }
 
     /// <summary>
     /// Checks if an object is on the screen or not
@@ -25,7 +16,7 @@
     public bool isOnscreen(Vector2 resolution, Vector2 mapOffset)
     {
         // makes the current bounds by adding the map offset
-        Bounds2 currentBounds = new Bounds2(bounds.Position + mapOffset, bounds.Size);
+        Bounds2 currentBounds = new Bounds2(Bounds.Position + mapOffset, Bounds.Size);
 
         // checks if the current bounds overlap with the resolution
         return (currentBounds.Overlaps(new Bounds2(new Vector2(0, 0), resolution)));

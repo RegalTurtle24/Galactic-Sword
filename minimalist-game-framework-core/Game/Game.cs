@@ -1,5 +1,7 @@
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 public enum Areas
 {
@@ -81,8 +83,14 @@ class Game
 
     public static int keyCount = 0;
 
-    String startSave = "assets/startSave.csv";
-    String gameSave = "assets/gameSave.csv";
+    string startSave = "Assets/startSave.csv";
+    string gameSave = "Assets/gameSave.csv";
+    string dun1Start = "Assets/dungeon1.csv";
+    string dun1Save = "Assets/dungeon1save.csv";
+    string dun2Start = "Assets/dungeon2.csv";
+    string dun2Save = "Assets/dungeon2save.csv";
+    string dun3Start = "Assets/dungeon3.csv";
+    string dun3Save = "Assets/dungeon3save.csv";
 
     public Game()
     {
@@ -159,14 +167,14 @@ class Game
 
         if (Engine.GetKeyDown(Key.S) && curGameState == GameState.Home)
         {
-            startupWithFile(startSave);
+            startupWithFile(startSave, dun1Start, dun2Start, dun3Start);
             curGameState = GameState.Game;
             playMusic = false;
         }
 
         if (Engine.GetKeyDown(Key.F) && curGameState == GameState.Home)
         {
-            startupWithFile(gameSave);
+            startupWithFile(gameSave, dun1Save, dun2Save, dun3Save);
             curGameState = GameState.Game;
             playMusic = false;
         }
@@ -206,7 +214,7 @@ class Game
         if (Engine.GetKeyDown(Key.P) &&
             (curGameState == GameState.Paused || curGameState == GameState.End))
         {
-            startupWithFile(gameSave);
+            startupWithFile(gameSave, dun1Save, dun2Save, dun3Save);
             curGameState = GameState.Game;
         }
 
@@ -346,12 +354,9 @@ class Game
                     Tile t = maps[currentArea].getTiles()[j];
                     if (t.isOnscreen(Resolution, maps[currentArea].mapOffset))
                     {
-                        if (t.isBreakable() && t.getBounds().Overlaps(explosion))
+                        if (t.isBreakable() && t.Bounds.Overlaps(explosion))
                         {
-                            maps[currentArea].replaceDoor(t);
-                            Tile newTile = new Tile(t.getBounds(), false, t.getDoorExit(), new Bounds2(17 * 64, 9 * 64, 64, 64), t.getRotation(), t.getTexture());
-                            maps[currentArea].getTiles().Add(newTile);
-                            maps[currentArea].getTiles().Remove(t);
+                            t.turnDoor();
                         }
                     }
                 }
@@ -360,7 +365,7 @@ class Game
                 {
                     if (e[j].isOnscreen(Resolution, maps[currentArea].mapOffset))
                     {
-                        if (e[j].getBounds().Overlaps(explosion))
+                        if (e[j].Bounds.Overlaps(explosion))
                         {
                             e[j].damage(2);
                         }
@@ -433,11 +438,6 @@ class Game
 
     }
 
-    private Item makeItem()
-    {
-        return new Item("Bomb", 300, 300);
-    }
-
     public static void finishDugeon()
     {
         if (dungeonsCompleted < 4)
@@ -458,7 +458,7 @@ class Game
         }
     }
 
-    public void startupWithFile(String fileName)
+    public void startupWithFile(String fileName, string dun1, string dun2, string dun3)
     {
         FileManager fm = new FileManager();
         fm.loadFromExistingFile(fileName);
@@ -471,10 +471,10 @@ class Game
         bombCount = fm.bombs;
 
         maps.Clear();
-        maps.Add(new Map(Areas.Overworld, fm.overworldOffset, new List<Enemy>()));
-        maps.Add(new Map(Areas.Dungeon1, fm.dungeon1Offset, fm.dun1Enemies));
-        maps.Add(new Map(Areas.Dungeon2, fm.dungeon2Offset, fm.dun2Enemies));
-        maps.Add(new Map(Areas.Dungeon3, fm.dungeon3Offset, fm.dun3Enemies));
+        maps.Add(new Map(Areas.Overworld, fm.overworldOffset, new List<Enemy>(), null));
+        maps.Add(new Map(Areas.Dungeon1, fm.dungeon1Offset, fm.dun1Enemies, dun1));
+        maps.Add(new Map(Areas.Dungeon2, fm.dungeon2Offset, fm.dun2Enemies, dun2));
+        maps.Add(new Map(Areas.Dungeon3, fm.dungeon3Offset, fm.dun3Enemies, dun3));
 
         dungeon1ItemList = maps[currentArea].dungeon1ItemListMaker();
         dungeon2ItemList = maps[currentArea].dungeon2ItemListMaker();
@@ -513,7 +513,7 @@ class Game
             "dungeon1Offset:" + maps[(int)Areas.Dungeon1].mapOffset.X + ":" + maps[(int)Areas.Dungeon1].mapOffset.Y;
         foreach (Enemy e in maps[1].getEnemies())
         {
-            dungeon1Info = dungeon1Info + ",enemy1:" + e.getType() + ":" + (int)e.getBounds().Position.X + ":" + (int)e.getBounds().Position.Y;
+            dungeon1Info = dungeon1Info + ",enemy1:" + e.getType() + ":" + (int)e.Bounds.Position.X + ":" + (int)e.Bounds.Position.Y;
         }
 
         fm.writeToGameSave(dungeon1Info);
@@ -522,7 +522,7 @@ class Game
             "dungeon2Offset:" + maps[(int)Areas.Dungeon2].mapOffset.X + ":" + maps[(int)Areas.Dungeon2].mapOffset.Y;
         foreach (Enemy e in maps[2].getEnemies())
         {
-            dungeon2Info = dungeon2Info + ",enemy2:" + e.getType() + ":" + (int)e.getBounds().Position.X + ":" + (int)e.getBounds().Position.Y;
+            dungeon2Info = dungeon2Info + ",enemy2:" + e.getType() + ":" + (int)e.Bounds.Position.X + ":" + (int)e.Bounds.Position.Y;
         }
 
         fm.writeToGameSave(dungeon2Info);
@@ -531,9 +531,23 @@ class Game
             "dungeon3Offset:" + maps[(int)Areas.Dungeon3].mapOffset.X + ":" + maps[(int)Areas.Dungeon3].mapOffset.Y;
         foreach (Enemy e in maps[3].getEnemies())
         {
-            dungeon3Info = dungeon3Info + ",enemy3:" + e.getType() + ":" + (int)e.getBounds().Position.X + ":" + (int)e.getBounds().Position.Y;
+            dungeon3Info = dungeon3Info + ",enemy3:" + e.getType() + ":" + (int)e.Bounds.Position.X + ":" + (int)e.Bounds.Position.Y;
         }
 
         fm.writeToGameSave(dungeon3Info);
+
+        string dun1 = "";
+        foreach(Tile t in maps[1].getTiles())
+        {
+            if (t.Bounds.Position.X == 0 && t.Bounds.Position.Y != 0)
+            {
+                dun1 = dun1.Substring(0, dun1.Length - 1);
+                dun1 = dun1 + "\n";
+            }
+            dun1 = dun1 + t.ID;
+            dun1 = dun1 + ",";
+        }
+        dun1 = dun1.Substring(0, dun1.Length - 3);
+        File.WriteAllText(dun1Save, dun1);
     }
 }

@@ -16,10 +16,6 @@ class Enemy : Entity
     private double Angle;
     //name of enemy type - fodder, melee, longer melee, and ranged enemies
     private String Type;
-    //where this enemy spawns in + size
-    private Bounds2 MapPos;
-    //what this enemy looks like
-    private Texture Texture;
 
     //constructor
     public Enemy(String typeSet, double x, double y)
@@ -63,6 +59,19 @@ class Enemy : Entity
         }
 
         setCoords(x, y);
+        if(typeSet.Equals("projectile"))
+        {
+            Bounds2 tempB = Bounds;
+            tempB.Size.X = 8 * Scale;
+            tempB.Size.Y = 8 * Scale;
+            Bounds = tempB;
+        } else
+        {
+            Bounds2 tempB = Bounds;
+            tempB.Size.X = 16 * Scale;
+            tempB.Size.Y = 16 * Scale;
+            Bounds = tempB;
+        }
     }
 
     //accesses each of the class variables
@@ -82,20 +91,12 @@ class Enemy : Entity
     {
         return Type;
     }
-    public Bounds2 getCoords()
-    {
-        return this.bounds;
-    }
-    public Texture getTexture()
-    {
-        return Texture;
-    }
 
     //mutator for class variables
     public void setAngle(Vector2 playerPos)
     {
-        double sin = (playerPos.Y - getCoords().Position.Y);
-        double cos = (playerPos.X - getCoords().Position.X);
+        double sin = (playerPos.Y - Bounds.Position.Y);
+        double cos = (playerPos.X - Bounds.Position.X);
 
         if (sin == 0)
             sin += 0.01;
@@ -114,23 +115,22 @@ class Enemy : Entity
     }
     public void setCoords(double newX, double newY)
     {
-        this.bounds.Position.X = (float)newX;
-        this.bounds.Position.Y = (float)newY;
-        this.bounds.Size.X = 16 * Scale;
-        this.bounds.Size.Y = 16 * Scale;
+        Bounds2 tempB = Bounds;
+        tempB.Position.X = (float)newX;
+        tempB.Position.Y = (float)newY;
+        Bounds = tempB;
+    }
 
-        if (Type.Equals("projectile"))
-        {
-            this.bounds.Size.X = 8 * Scale;
-            this.bounds.Size.Y = 8 * Scale;
-        }
+    public void changeCoords(double deltaX, double deltaY)
+    {
+        setCoords(Bounds.Position.X + deltaX, Bounds.Position.Y + deltaY);
     }
 
     //moves the enemy
     public void move(Vector2 playerCoords)
     {
-        double newX = getCoords().Position.X;
-        double newY = getCoords().Position.Y;
+        double newX = Bounds.Position.X;
+        double newY = Bounds.Position.Y;
 
         double x = playerCoords.X;
         double y = playerCoords.Y;
@@ -208,30 +208,30 @@ class Enemy : Entity
     {
         foreach (Tile t in tiles)
         {
-            if (t.getCollidable() && t.isOnscreen(res, mapOffset) && !Type.Equals("projectile"))
+            if (t.Collidable && t.isOnscreen(res, mapOffset) && !Type.Equals("projectile"))
             {
-                if (this.bounds.Overlaps(t.getBounds()))
+                if (Bounds.Overlaps(t.Bounds))
                 {
-                    float xPushRight = t.getBounds().Position.X + t.getBounds().Size.X - this.bounds.Position.X;
-                    float xPushLeft = this.bounds.Position.X + this.bounds.Size.X - t.getBounds().Position.X;
-                    float yPushUp = this.bounds.Position.Y + this.bounds.Size.Y - t.getBounds().Position.Y;
-                    float yPushDown = t.getBounds().Position.Y + t.getBounds().Size.Y - this.bounds.Position.Y;
+                    float xPushRight = t.Bounds.Position.X + t.Bounds.Size.X - Bounds.Position.X;
+                    float xPushLeft = Bounds.Position.X + Bounds.Size.X - t.Bounds.Position.X;
+                    float yPushUp = Bounds.Position.Y + Bounds.Size.Y - t.Bounds.Position.Y;
+                    float yPushDown = t.Bounds.Position.Y + t.Bounds.Size.Y - Bounds.Position.Y;
 
                     if (xPushRight < xPushLeft && xPushRight < yPushUp && xPushRight < yPushDown)
                     {
-                        this.bounds.Position.X += xPushRight;
+                        changeCoords(xPushRight, 0);
                     }
                     else if (xPushLeft < xPushRight && xPushLeft < yPushUp && xPushLeft < yPushDown)
                     {
-                        this.bounds.Position.X -= xPushLeft;
+                        changeCoords(-xPushLeft, 0);
                     }
                     else if (yPushUp < xPushLeft && yPushUp < xPushRight && yPushUp < yPushDown)
                     {
-                        this.bounds.Position.Y -= yPushUp;
+                        changeCoords(0, -yPushUp);
                     }
                     else if (yPushDown < xPushLeft && yPushDown < yPushUp && yPushDown < xPushRight)
                     {
-                        this.bounds.Position.Y += yPushDown;
+                        changeCoords(0, yPushDown);
                     }
                 }
             }
@@ -240,10 +240,10 @@ class Enemy : Entity
 
     public void damage(Player player, Bounds2 playerCoords)
     {
-        double curX = getCoords().Position.X;
-        double curY = getCoords().Position.Y;
-        double centerX = curX + getCoords().Size.X / 2;
-        double centerY = curY + getCoords().Size.Y / 2;
+        double curX = Bounds.Position.X;
+        double curY = Bounds.Position.Y;
+        double centerX = curX + Bounds.Size.X / 2;
+        double centerY = curY + Bounds.Size.Y / 2;
 
         double x = playerCoords.Position.X;
         double y = playerCoords.Position.Y;
@@ -257,7 +257,7 @@ class Enemy : Entity
         {
             Health--;
         }
-        else if (getCoords().Overlaps(playerCoords))
+        else if (Bounds.Overlaps(playerCoords))
         {
             player.takeDamage();
 

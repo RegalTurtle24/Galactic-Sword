@@ -21,21 +21,21 @@
     /// <summary>
     /// Constructor for the player's character
     /// </summary>
-    /// <param name="bounds">The bounds of the player's character</param>
+    /// <param name="Bounds">The Bounds of the player's character</param>
     public Player()
     {
         health = 5;
-        bounds = new Bounds2(320 - characterSize / 2 * scale, 240 - characterSize / 2 * scale, characterSize * scale, characterSize * scale);
+        Bounds = new Bounds2(320 - characterSize / 2 * scale, 240 - characterSize / 2 * scale, characterSize * scale, characterSize * scale);
         hasSword = true;
     }
     public Bounds2 getPlayerBounds()
     {
-        return bounds;
+        return Bounds;
     }
 
     public Vector2 getPlayerLocation()
     {
-        return new Vector2(bounds.Position.X, bounds.Position.Y);
+        return new Vector2(Bounds.Position.X, Bounds.Position.Y);
     }
     /// <summary>
     /// Moves the player
@@ -62,12 +62,12 @@
             foreach (Tile t in map.getTiles())
             {
                 // if the tile is collidable and onscreen
-                if (t.getCollidable() && t.isOnscreen(res, mapOffset))
+                if (t.Collidable && t.isOnscreen(res, mapOffset))
                 {
                     // find the current position of the tile relative to the player
-                    Bounds2 curTilePos = new Bounds2(t.getBounds().Position + mapOffset, t.getBounds().Size);
+                    Bounds2 curTilePos = new Bounds2(t.Bounds.Position + mapOffset, t.Bounds.Size);
 
-                    if (bounds.Overlaps(curTilePos) && curArea != (int)t.getDoorExit())
+                    if (Bounds.Overlaps(curTilePos) && curArea != (int)t.getDoorExit())
                     {
                         if (dunComp + 1 >= (int)t.getDoorExit())
                         {
@@ -78,11 +78,11 @@
                     }
 
                     // check if the tile is overlapping the player
-                    if (bounds.Overlaps(curTilePos))
+                    if (Bounds.Overlaps(curTilePos))
                     {
                         // Finds the center of the tile and player
                         float tileCenter = curTilePos.Position.X + curTilePos.Size.X / 2;
-                        float playerCenter = bounds.Position.X + bounds.Size.X / 2;
+                        float playerCenter = Bounds.Position.X + Bounds.Size.X / 2;
 
                         // Sets the default direction of where the tile is going to push the player
                         int moveDir = -1;
@@ -93,11 +93,11 @@
                         }
 
                         // While the player and tile overlap
-                        while (bounds.Overlaps(curTilePos))
+                        while (Bounds.Overlaps(curTilePos))
                         {
                             // push the player out of the tile
                             mapOffset.X += moveDir;
-                            curTilePos = new Bounds2(t.getBounds().Position + mapOffset, t.getBounds().Size);
+                            curTilePos = new Bounds2(t.Bounds.Position + mapOffset, t.Bounds.Size);
                         }
                     }
                 }
@@ -111,12 +111,12 @@
             foreach (Tile t in map.getTiles())
             {
                 // if the tile is collidable and onscreen
-                if (t.getCollidable() && t.isOnscreen(res, mapOffset))
+                if (t.Collidable && t.isOnscreen(res, mapOffset))
                 {
                     // find the current position of the tile relative to the player
-                    Bounds2 curTilePos = new Bounds2(t.getBounds().Position + mapOffset, t.getBounds().Size);
+                    Bounds2 curTilePos = new Bounds2(t.Bounds.Position + mapOffset, t.Bounds.Size);
 
-                    if (bounds.Overlaps(curTilePos) && curArea != (int)t.getDoorExit())
+                    if (Bounds.Overlaps(curTilePos) && curArea != (int)t.getDoorExit())
                     {
                         if (dunComp + 1 >= (int)t.getDoorExit())
                         {
@@ -127,11 +127,11 @@
                     }
 
                     // check if the tile is overlapping the player
-                    if (bounds.Overlaps(curTilePos))
+                    if (Bounds.Overlaps(curTilePos))
                     {
                         // Finds the center of the tile and player
                         float tileCenter = curTilePos.Position.Y + curTilePos.Size.Y / 2;
-                        float playerCenter = bounds.Position.Y + bounds.Size.Y / 2;
+                        float playerCenter = Bounds.Position.Y + Bounds.Size.Y / 2;
 
                         // Sets the default direction of where the tile is going to push the player
                         int moveDir = -1;
@@ -142,11 +142,11 @@
                         }
 
                         // While the player and tile overlap
-                        while (bounds.Overlaps(curTilePos))
+                        while (Bounds.Overlaps(curTilePos))
                         {
                             // push the player out of the tile
                             mapOffset.Y += moveDir;
-                            curTilePos = new Bounds2(t.getBounds().Position + mapOffset, t.getBounds().Size);
+                            curTilePos = new Bounds2(t.Bounds.Position + mapOffset, t.Bounds.Size);
                         }
                     }
                 }
@@ -169,9 +169,9 @@
         knightFrameBounds = new Bounds2(((int)frameIndex) * characterSize, 0, characterSize, characterSize);
         TextureMirror knightMirror = playerFaceLeft ? TextureMirror.Horizontal : TextureMirror.None;
 
-        if (knightIdle) Engine.DrawTexture(playerIdle, bounds.Position, source: knightFrameBounds, mirror: knightMirror,
+        if (knightIdle) Engine.DrawTexture(playerIdle, Bounds.Position, source: knightFrameBounds, mirror: knightMirror,
             size: new Vector2(characterSize * scale, characterSize * scale));
-        else Engine.DrawTexture(playerRunning, bounds.Position, source: knightFrameBounds, mirror: knightMirror, 
+        else Engine.DrawTexture(playerRunning, Bounds.Position, source: knightFrameBounds, mirror: knightMirror, 
             size: new Vector2(characterSize * scale, characterSize * scale));
     }
 
