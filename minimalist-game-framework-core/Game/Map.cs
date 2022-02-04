@@ -22,24 +22,16 @@ class Map
     /// Constructor for a map
     /// </summary>
     /// <param name="mapType">What type of map is this: 0 for overworld</param>
-    public Map(Areas mapType, Vector2 mapOffset, List<Enemy> enemies)
+    public Map(Areas mapType, Vector2 mapOffset, List<Enemy> enemies, string fileName)
     {
         // map type 0 is an overworld map, so starts to use that
         if (mapType == Areas.Overworld)
         {
             createOverworldMap();
         }
-        else if (mapType == Areas.Dungeon1)
+        else
         {
-            createDungeon("assets/dungeon1.csv", Areas.Dungeon1);
-        }
-        else if (mapType == Areas.Dungeon2)
-        {
-            createDungeon("assets/dungeon2.csv", Areas.Dungeon2);
-        }
-        else if (mapType == Areas.Dungeon3)
-        {
-            createDungeon("assets/dungeon3.csv", Areas.Dungeon3);
+            createDungeon(fileName, mapType);
         }
 
         this.mapOffset = mapOffset;
@@ -56,7 +48,7 @@ class Map
         {
             if (t.isOnscreen(res, mapOffset))
             {
-                Engine.DrawTexture(t.getTexture(), t.getBounds().Position + mapOffset,
+                Engine.DrawTexture(t.getTexture(), t.Bounds.Position + mapOffset,
                     rotation: t.getRotation(),
                     source: t.getTextureBounds(),
                     mirror: t.getMirror(),
@@ -84,15 +76,20 @@ class Map
                     if (a.getAge() == 0)
                         a.setAngle(playerCoords.Position);
                 if (a.getType().Equals("gunner") && a.getAge() % 120 == 0)
-                    enemies.Add(new Enemy("projectile", a.getCoords().Position.X, a.getCoords().Position.Y));
+                    enemies.Add(new Enemy("projectile", a.Bounds.Position.X, a.Bounds.Position.Y));
 
                 a.collide(tiles, res, mapOffset);
                 a.move(playerCoords.Position);
 
                 if (a.getType().Equals("projectile"))
-                    Engine.DrawTexture(a.getTexture(), a.getCoords().Position + mapOffset, size: new Vector2(8, 8));
+                    Engine.DrawTexture(a.Texture, a.Bounds.Position + mapOffset, size: new Vector2(8, 8));
                 else
-                    Engine.DrawTexture(a.getTexture(), a.getCoords().Position + mapOffset, size: new Vector2(a.Scale * 16, a.Scale * 16));
+                    Engine.DrawTexture(a.Texture, a.Bounds.Position + mapOffset, size: new Vector2(a.Scale * 16, a.Scale * 16));
+
+                if (a.getType().Equals("projectile") && !a.isOnscreen(res, mapOffset))
+                {
+                    enemies.Remove(a);
+                }
             }
         }
     }
@@ -204,7 +201,7 @@ class Map
 
     public void addTriangle(int xPos, int yPos)
     {
-        tiles.Add(new Tile(new Bounds2(xPos * scale, yPos * scale, 16 * scale, 16 * scale), false, Areas.Overworld, new Bounds2(0, 0, 35, 35), 0, triangle));
+        tiles.Add(new Tile(new Bounds2(xPos * scale, yPos * scale, 16 * scale, 16 * scale), false, Areas.Overworld, new Bounds2(0, 0, 35, 35), 0, triangle, 0));
     }
 
     // Tilesheets for the overworld maps
@@ -299,7 +296,7 @@ class Map
                 Bounds2 textureBounds = new Bounds2(textureID % columns * 16, textureID / columns * 16, 16, 16);
 
                 // creates the tile and adds it to the list of tiles
-                tiles.Add(new Tile(tileLocation, coll, door, textureBounds, rotation, fileName));
+                tiles.Add(new Tile(tileLocation, coll, door, textureBounds, rotation, fileName, intID));
 
                 // moves to the next tile position to the right
                 xOffset++;
@@ -322,19 +319,9 @@ class Map
     List<int> dungeonsCollidableTextures = new List<int> { -1, 190, 191, 192, 194, 196, 199, 200, 201, 220, 221, 222, 223, 224, 229, 231, 250, 251, 252, 253, 254, 256, 257, 258, 259, 260, 261, 280, 281, 282, 283, 284, 285, 290, 291, 292, 462, 463, 489, 490,
           286, 289, 293 };
 
-    private void createDungeon(String csvName, Areas area)
+    private void createDungeon(String fileName, Areas area)
     {
-        String saveFile = csvName.Substring(0, 15) + "save.csv";
-        TextFieldParser parser;
-        if (File.Exists(saveFile))
-        {
-            parser = new TextFieldParser(saveFile);
-        }
-        else
-        {
-            parser = new TextFieldParser(csvName);
-        }
-
+        TextFieldParser parser = new TextFieldParser(fileName);
         parser.TextFieldType = FieldType.Delimited;
         parser.SetDelimiters(",");
 
@@ -435,7 +422,7 @@ class Map
                     64, 64);
 
                 // creates the tile and adds it to the list of tiles
-                tiles.Add(new Tile(tileLocation, coll, door, textureBounds, rotation, dungeonsTileSheet, mirror, breakable));
+                tiles.Add(new Tile(tileLocation, coll, door, textureBounds, rotation, dungeonsTileSheet, intID, mirror, breakable));
 
                 // moves to the next tile position to the right
                 xOffset++;
