@@ -177,30 +177,30 @@ class Enemy : Entity
     {
         //move towards player's X
         if (newX > x)
-            newX -= Speed;
+            newX -= Speed * 60 * Engine.TimeDelta;
         if (newX < x)
-            newX += Speed;
+            newX += Speed * 60 * Engine.TimeDelta;
 
         //move towards player's Y
         if (newY > y)
-            newY -= Speed;
+            newY -= Speed * 60 * Engine.TimeDelta;
         if (newY < y)
-            newY += Speed;
+            newY += Speed * 60 * Engine.TimeDelta;
     }
     private void moveAway(ref double newX, ref double newY, double x, double y)
     {
         double tempSpeed = Speed * 0.95;
         //move away from player's X
         if (newX > x)
-            newX += tempSpeed;
+            newX += tempSpeed * 60 * Engine.TimeDelta;
         if (newX < x)
-            newX -= tempSpeed;
+            newX -= tempSpeed * 60 * Engine.TimeDelta;
 
         //move away from player's Y
         if (newY > y)
-            newY += tempSpeed;
+            newY += tempSpeed * 60 * Engine.TimeDelta;
         if (newY < y)
-            newY -= tempSpeed;
+            newY -= tempSpeed * 60 * Engine.TimeDelta;
     }
 
     //COLLISION METHOD

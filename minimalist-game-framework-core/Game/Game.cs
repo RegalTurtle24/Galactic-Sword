@@ -70,7 +70,7 @@ class Game
     public static int dungeonsCompleted = 0;
 
     //variable for timer for sword animation
-    public static int time = -1;
+    public static float time = -1;
 
     //variable for timer for bomb explosion animation
     int bombTime = -2;
@@ -306,7 +306,8 @@ class Game
         if (time > -1)
         {
             //draw
-            Bounds2 swordBounds = new Bounds2((time % 3) * 48, (time / 3) * 48, 48, 48);
+            int drawTime = (int)time;
+            Bounds2 swordBounds = new Bounds2((drawTime % 3) * 48, (drawTime / 3) * 48, 48, 48);
             Bounds2 bounds = new Bounds2(322, 216, 16, 16);
             TextureMirror swordMirror = !mainCharacter.isPlayerFacingLeft() ? TextureMirror.None : TextureMirror.Horizontal;
 
@@ -318,7 +319,7 @@ class Game
             Engine.DrawTexture(swordAnimation, bounds.Position, source: swordBounds, mirror: swordMirror);
 
             if (time < swordAnimationFrame - 1)
-                time++;
+                time += (Engine.TimeDelta * 60);
             else
                 time = -1;
         }
