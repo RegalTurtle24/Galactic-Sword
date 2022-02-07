@@ -485,6 +485,11 @@ class Game
         {
             finishDugeon();
         }
+
+        if(fileName.Equals(startSave))
+        {
+            saveGame();
+        }    
     }
 
     public void saveGame()
